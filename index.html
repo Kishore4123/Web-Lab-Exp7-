@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wanderlust Travels - Trip Budget Calculator</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<style>
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: #f0f7ff;
+        color: #333;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    header {
+        background: linear-gradient(135deg, #0284c7, #0f766e);
+        color: white;
+        padding: 25px 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+        margin: 0 0 8px 0;
+        font-size: 2.2rem;
+    }
+
+    header p {
+        margin: 0;
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .box {
+        background: white;
+        width: 380px;
+        margin: 30px auto;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        text-align: left;
+    }
+
+    .box h2 {
+        text-align: center;
+        color: #0f766e;
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: bold;
+        margin-bottom: 4px;
+        color: #444;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 0.95rem;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #0284c7;
+    }
+
+    #pct-status {
+        font-size: 0.85rem;
+        font-weight: bold;
+        margin-top: 10px;
+        text-align: right;
+    }
+
+    .valid-pct { color: #16a34a; }
+    .invalid-pct { color: #dc2626; }
+
+    button {
+        background: #0284c7;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 1rem;
+        font-weight: bold;
+        margin-top: 15px;
+        transition: background 0.3s;
+    }
+
+    button:hover {
+        background: #0369a1;
+    }
+
+    #result {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        display: none;
+    }
+
+    #result h3 {
+        margin-top: 0;
+        color: #0f766e;
+        border-bottom: 2px solid #0f766e;
+        padding-bottom: 6px;
+        text-align: center;
+    }
+
+    .result-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed #cbd5e1;
+        font-size: 0.95rem;
+    }
+
+    .result-item:last-child {
+        border-bottom: none;
+    }
+
+    .result-item strong {
+        color: #0284c7;
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>✈️ Wanderlust Travels</h1>
+    <p>Plan Your Dream Vacation Smartly</p>
+</header>
+
+<div class="box">
+    <h2>Trip Budget Calculator</h2>
+
+    <div class="form-group">
+        <label for="amount">Total Trip Budget (₹):</label>
+        <input type="number" id="amount" placeholder="Enter total trip budget">
+    </div>
+
+    <div class="form-group">
+        <label for="transport">Flights & Transport (%):</label>
+        <input type="number" class="pct-input" id="transport" value="35">
+    </div>
+
+    <div class="form-group">
+        <label for="stay">Hotel & Accommodation (%):</label>
+        <input type="number" class="pct-input" id="stay" value="30">
+    </div>
+
+    <div class="form-group">
+        <label for="food">Food & Dining (%):</label>
+        <input type="number" class="pct-input" id="food" value="15">
+    </div>
+
+    <div class="form-group">
+        <label for="activities">Sightseeing & Activities (%):</label>
+        <input type="number" class="pct-input" id="activities" value="10">
+    </div>
+
+    <div class="form-group">
+        <label for="emergency">Shopping & Emergency (%):</label>
+        <input type="number" class="pct-input" id="emergency" value="10">
+    </div>
+
+    <div id="pct-status" class="valid-pct">Total Allocation: <span id="total-pct">100</span>%</div>
+
+    <button id="evaluate">Calculate Travel Budget</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+$(document).ready(function() {
+
+    // Live counter for total percentage allocation
+    function updateTotalPercentage() {
+        var transport = Number($("#transport").val()) || 0;
+        var stay = Number($("#stay").val()) || 0;
+        var food = Number($("#food").val()) || 0;
+        var activities = Number($("#activities").val()) || 0;
+        var emergency = Number($("#emergency").val()) || 0;
+
+        var totalPct = transport + stay + food + activities + emergency;
+        $("#total-pct").text(totalPct);
+
+        if (totalPct === 100) {
+            $("#pct-status").removeClass("invalid-pct").addClass("valid-pct");
+        } else {
+            $("#pct-status").removeClass("valid-pct").addClass("invalid-pct");
+        }
+    }
+
+    $(".pct-input").on("input change", function() {
+        updateTotalPercentage();
+    });
+
+    // Evaluate budget breakdown
+    $("#evaluate").click(function() {
+        var amount = Number($("#amount").val());
+        var transport = Number($("#transport").val());
+        var stay = Number($("#stay").val());
+        var food = Number($("#food").val());
+        var activities = Number($("#activities").val());
+        var emergency = Number($("#emergency").val());
+
+        var total = transport + stay + food + activities + emergency;
+
+        // Input Validation
+        if ($("#amount").val() === "" || amount <= 0 || transport < 0 || stay < 0 || food < 0 || activities < 0 || emergency < 0 || transport > 100 || stay > 100 || food > 100 || activities > 100 || emergency > 100) {
+            alert("Please enter valid positive values for all fields.");
+            $("#result").hide();
+            return;
+        }
+
+        if (total !== 100) {
+            alert("The total percentage allocation must equal exactly 100%. Current total is " + total + "%.");
+            $("#result").hide();
+            return;
+        }
+
+        // Calculate monetary values
+        var tVal = (amount * transport) / 100;
+        var sVal = (amount * stay) / 100;
+        var fVal = (amount * food) / 100;
+        var aVal = (amount * activities) / 100;
+        var eVal = (amount * emergency) / 100;
+
+        // Display results with formatted output
+        var outputHTML = 
+            "<h3>Trip Cost Breakdown</h3>" +
+            "<div class='result-item'><span>✈️ Flights & Transport:</span> <strong>₹" + tVal.toFixed(2) + "</strong></div>" +
+            "<div class='result-item'><span>🏨 Hotel & Stay:</span> <strong>₹" + sVal.toFixed(2) + "</strong></div>" +
+            "<div class='result-item'><span>🍽️ Food & Dining:</span> <strong>₹" + fVal.toFixed(2) + "</strong></div>" +
+            "<div class='result-item'><span>🎟️ Sightseeing & Tours:</span> <strong>₹" + aVal.toFixed(2) + "</strong></div>" +
+            "<div class='result-item'><span>🛍️ Shopping & Emergency:</span> <strong>₹" + eVal.toFixed(2) + "</strong></div>";
+
+        $("#result").html(outputHTML).slideDown();
+    });
+});
+</script>
+
+</body>
+</html>
